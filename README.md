@@ -5,7 +5,7 @@ Create Waffle Chart Visualizations
 
 Link to the original package: [waffle](https://github.com/hrbrmstr/waffle)
 
-Link to deplopyed website: [website]
+Link to deplopyed website: https://jhu-statprogramming-fall-2023.github.io/biostat777-project3-part1-yanxiliu230/
 
 Customization:
 1. change theme to cyborg
