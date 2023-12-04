@@ -48,3 +48,4 @@ Imports:
     rlang,
     utils
 RoxygenNote: 7.2.3
+VignetteBuilder: knitr

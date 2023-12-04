@@ -3,6 +3,17 @@
 
 Create Waffle Chart Visualizations
 
+Link to the original package: [waffle](https://github.com/hrbrmstr/waffle)
+
+Link to deplopyed website: [website]
+
+Customization:
+1. change theme to cyborg
+2. change code block theme to breeze-light
+3. change base font, head font, code font
+
+Original Author: Bob Rudis, Dave Gandy, Nora Liu
+
 ## Description
 
 Square pie charts (a.k.a. waffle charts) can be used to communicate
@@ -17,7 +28,7 @@ and to use glyphs for making isotype pictograms.
 
 It uses ggplot2 and returns a ggplot2 object.
 
-## What’s Inside the Tin
+## What’s Inside the Tin (Exported Functions)
 
 The following functions are implemented:
 
@@ -347,7 +358,7 @@ waffle(
   )
 ```
 
-<img src="README_files/figure-commonmark/medkit-1.png" width="576" />
+<img src="../README_files/figure-commonmark/medkit-1.png" width="576" />
 
 ### Replicating an old favourite
 
@@ -376,7 +387,7 @@ waffle(
 
 **Average Household Savings Each Year**
 
-<img src="README_files/figure-commonmark/fig4a-1.png" width="768" />
+<img src="../README_files/figure-commonmark/fig4a-1.png" width="768" />
 
 <span style="font-size:8pt">(1 square == \$392)</span>
 
