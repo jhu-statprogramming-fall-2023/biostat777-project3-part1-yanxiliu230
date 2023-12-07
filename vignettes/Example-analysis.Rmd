@@ -17,3 +17,13 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(waffle)
 ```
+
+
+### Functions used
+
+| Package       | Function     |  
+| ------------- |:-------------:| 
+| `dplyr`      | `select()`, `filter()`, `slice_max()`, `slice_min()`, `summarise()`, `group_by()` | 
+| `stringr`      | `str_detect()`      |  
+| `lubridate` | `month()`, `wday()`      | 
+| `ggplot2` | `geom_line()`, `geom_histogram()`, `geom_vline()`, `geom_point()`, `geom_smooth()`|
