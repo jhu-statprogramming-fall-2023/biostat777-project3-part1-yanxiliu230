@@ -16,6 +16,69 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(waffle)
+library(tidytuesdayR)
+library(dplyr)
+library(lubridate)
+```
+
+Link to the data dictionary: https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md
+
+
+
+
+### Load data into R
+
+```
+tuesdata <- tidytuesdayR::tt_load('2023-01-31')
+tuesdata <- tidytuesdayR::tt_load(2023, week = 5)
+
+cats_uk <- tuesdata$cats_uk
+cats_uk_reference <- tuesdata$cats_uk_reference
+```
+
+
+
+```{r}
+# function to test if the directory exists, and create one if not
+data_dir <- function(folder) {
+  if(!file.exists(paste(here::here(), folder, sep="/"))) {
+    dir.create(paste(here::here(), folder, sep="/"))
+    }
+}
+data_dir("data")
+
+# save the data only once
+# write.csv(cats_uk_reference,
+#           file=paste(here::here(), 'data/cats_uk_reference.csv', sep="/"),
+#           row.names = FALSE)
+
+# load the data locally
+df <- read.csv(paste(here::here(), 'data/cats_uk_reference.csv', sep="/"))
+```
+
+
+
+```{r}
+unique(df$animal_taxon)
+unique(df$study_site)
+```
+
+
+```{r}
+df %>% group_by(animal_reproductive_condition) %>%
+  summarise(hrs_indoors = mean(hrs_indoors, na.rm = TRUE),
+            prey_p_month = mean(prey_p_month, na.rm = TRUE),
+            n_cats = mean(n_cats, na.rm = TRUE))
+```
+
+
+```{r}
+ymd_hms(df$deploy_on_date)
+```
+
+
+```{r}
+ymd_hms(df$deploy_on_date) - ymd_hms(df$deploy_off_date)
 ```
 
 
