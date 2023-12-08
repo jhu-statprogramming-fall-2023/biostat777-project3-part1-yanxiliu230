@@ -91,16 +91,42 @@
 <span><span class="co">#&gt; Attaching package: 'lubridate'</span></span>
 <span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     date, intersect, setdiff, union</span></span></code></pre></div>
-<p>Link to the data dictionary: <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md" class="external-link uri">https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md</a></p>
+<span><span class="co">#&gt;     date, intersect, setdiff, union</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/wch/extrafont" class="external-link">extrafont</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Registering fonts with R</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="question">Question<a class="anchor" aria-label="anchor" href="#question"></a>
+</h3>
+<p>What factors affect pet cat’s hours indoor?</p>
+</div>
+<div class="section level3">
+<h3 id="data-source">Data Source<a class="anchor" aria-label="anchor" href="#data-source"></a>
+</h3>
+<p>The data comes from the <a href="https://datarepository.movebank.org/entities/datapackage/4ef43458-a0c0-4ff0-aed4-64b07cedf11c" class="external-link">Movebank
+for Animal Tracking Data</a> via Data is Plural. The initial intent of
+the dataset is to impact of domestic cats on native prey. The data
+contains information about over one hundred (specifically 101)
+volunteers’ cat information on age, sex, neuter status, hunting habits,
+and time-stamped GPS pings.</p>
+<p><strong>Link to data source</strong>: McDonald JL, Cole H (2020) Data
+from: The small home ranges and large local ecological impacts of pet
+cats [United Kingdom]. Movebank Data Repository. <a href="https://datarepository.movebank.org/entities/datapackage/4ef43458-a0c0-4ff0-aed4-64b07cedf11c" class="external-link">doi:10.5441/001/1.pf315732</a></p>
+<p><strong>Link to the data dictionary</strong>: <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md" class="external-link uri">https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md</a></p>
+</div>
 <div class="section level3">
 <h3 id="load-data-into-r">Load data into R<a class="anchor" aria-label="anchor" href="#load-data-into-r"></a>
 </h3>
+<p>The following code chunk can read in the data from
+<code>tidytuesdayR</code>. We will save the file locally, so this chunk
+will only run once if you first clone the directory</p>
 <pre><code><span><span class="va">tuesdata</span> <span class="op">&lt;-</span> <span class="fu">tidytuesdayR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tidytuesdayR/man/tt_load.html" class="external-link">tt_load</a></span><span class="op">(</span><span class="st">'2023-01-31'</span><span class="op">)</span></span>
 <span><span class="va">tuesdata</span> <span class="op">&lt;-</span> <span class="fu">tidytuesdayR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tidytuesdayR/man/tt_load.html" class="external-link">tt_load</a></span><span class="op">(</span><span class="fl">2023</span>, week <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cats_uk</span> <span class="op">&lt;-</span> <span class="va">tuesdata</span><span class="op">$</span><span class="va">cats_uk</span></span>
 <span><span class="va">cats_uk_reference</span> <span class="op">&lt;-</span> <span class="va">tuesdata</span><span class="op">$</span><span class="va">cats_uk_reference</span></span></code></pre>
+<p>The data is saved under the data folder</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># function to test if the directory exists, and create one if not</span></span>
 <span><span class="va">data_dir</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">folder</span><span class="op">)</span> <span class="op">{</span></span>
@@ -117,96 +143,226 @@
 <span></span>
 <span><span class="co"># load the data locally</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">'data/cats_uk_reference.csv'</span>, sep<span class="op">=</span><span class="st">"/"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="data-wrangling-and-visualization">Data Wrangling and Visualization<a class="anchor" aria-label="anchor" href="#data-wrangling-and-visualization"></a>
+</h3>
+<p>First of all, let’s take a look at the basic information of the
+dataset</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">animal_sex</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">animal_sex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 2</span></span></span>
+<span><span class="co">#&gt;   animal_sex count</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> f             44</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> m             57</span></span></code></pre></div>
+<p>There are 44 female cats and 57 male cats</p>
+<p>Below is a demonstration of our <code>waffle</code> package. We can
+visualize the counts of female and male in square pie charts, which is
+able to show the proportion of data more directly</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">animal_sex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/waffle.html">waffle</a></span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">5</span>, legend_pos <span class="op">=</span> <span class="st">"bottom"</span>, colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#c7d4b6"</span>, <span class="st">"#a3aabd"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Example-analysis_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">animal_reproductive_condition</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">animal_sex</span>, <span class="va">animal_reproductive_condition</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="st">"animal_reproductive_condition"</span>,</span>
+<span>              values_from <span class="op">=</span> <span class="st">"count"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; `summarise()` has grouped output by 'animal_sex'. You can override using the</span></span>
+<span><span class="co">#&gt; `.groups` argument.</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Groups:   animal_sex [2]</span></span></span>
+<span><span class="co">#&gt;   animal_sex `Not fixed` Spayed Neutered</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> f                    1     41       <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> m                    1     <span style="color: #BB0000;">NA</span>       55</span></span></code></pre></div>
+<p>Obviously female cats are spayed and male cats are neutered. Only two
+cats are not fixed</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">animal_taxon</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Felis catus"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">study_site</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "UK"</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">animal_reproductive_condition</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>hrs_indoors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">hrs_indoors</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>            prey_p_month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">prey_p_month</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<p>All cats are domestic cats (Felis catus). All are from the UK.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">animal_reproductive_condition</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 3</span></span></code></pre></div>
+<p>There are three missing values for the reproductive conditions, among
+101 cats, so I will remove it first for cleaness of the example
+analysis.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">tag_id</span>, <span class="va">prey_p_month</span>, <span class="va">hrs_indoors</span>, <span class="va">hunt</span>, <span class="va">n_cats</span>, </span>
+<span>         <span class="va">animal_reproductive_condition</span>, <span class="va">food_dry</span>, </span>
+<span>         <span class="va">animal_sex</span>, <span class="va">age_years</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">prey_p_month</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt;               tag_id prey_p_month hrs_indoors hunt n_cats</span></span>
+<span><span class="co">#&gt; 1               Jago         17.5         7.5 TRUE      4</span></span>
+<span><span class="co">#&gt; 2            Sid-Tag         17.5         7.5 TRUE      1</span></span>
+<span><span class="co">#&gt; 3        Maxwell-Tag         17.5         7.5 TRUE      1</span></span>
+<span><span class="co">#&gt; 4        Carrots-Tag         17.5         7.5 TRUE      4</span></span>
+<span><span class="co">#&gt; 5           Spot-Tag         17.5         7.5 TRUE      4</span></span>
+<span><span class="co">#&gt; 6 Macaulay Mccat-Tag         17.5         2.5 TRUE      2</span></span>
+<span><span class="co">#&gt; 7          Ginge-Tag         17.5         2.5 TRUE      2</span></span>
+<span><span class="co">#&gt;   animal_reproductive_condition food_dry animal_sex age_years</span></span>
+<span><span class="co">#&gt; 1                      Neutered     TRUE          m         2</span></span>
+<span><span class="co">#&gt; 2                        Spayed     TRUE          f         4</span></span>
+<span><span class="co">#&gt; 3                      Neutered     TRUE          m         6</span></span>
+<span><span class="co">#&gt; 4                      Neutered     TRUE          m         3</span></span>
+<span><span class="co">#&gt; 5                      Neutered     TRUE          m         2</span></span>
+<span><span class="co">#&gt; 6                        Spayed     TRUE          f         6</span></span>
+<span><span class="co">#&gt; 7                      Neutered     TRUE          m         3</span></span></code></pre></div>
+<p>The highest per month is 17.5, all of them spend 7.5 hours in door;
+they are allowed to hunt, the number of cats in the household varies;
+all of them are neutered or spayed; all of them have dry food; Sex
+varies; age is in the lower to middle range.</p>
+<p>Here we can put in another two functions in <code>waffle</code></p>
+<p><code>waffle</code> package can also work with ggplot</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">food_dry</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="va">food_dry</span>, values <span class="op">=</span> <span class="va">n</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/geom_waffle.html">geom_waffle</a></span><span class="op">(</span>n_rows <span class="op">=</span> <span class="fl">8</span>, size <span class="op">=</span> <span class="fl">0.33</span>, colour <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#BA182A"</span>, <span class="st">"#FFEDA0"</span><span class="op">)</span>,</span>
+<span>                    labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Not Dry"</span>, <span class="st">"Dry"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_equal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_void</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Waffle plot of dry food count"</span>, </span>
+<span>                         subtitle <span class="op">=</span> <span class="st">"each square represents one cat"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="Example-analysis_files/figure-html/unnamed-chunk-10-1.png" alt="Proportion of dry and not dry food" width="700"><p class="caption">
+Proportion of dry and not dry food
+</p>
+</div>
+<p>It can also combine plots</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">food_dry</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/waffle.html">waffle</a></span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">5</span>, colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#BA182A"</span>, <span class="st">"#FFEDA0"</span><span class="op">)</span>, title <span class="op">=</span><span class="st">"Waffle plot of dry food count"</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">food_wet</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>count <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/waffle.html">waffle</a></span><span class="op">(</span>rows <span class="op">=</span> <span class="fl">5</span>, colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#BA182A"</span>, <span class="st">"#FFEDA0"</span><span class="op">)</span>, title<span class="op">=</span><span class="st">"Waffle plot of wet food count"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/iron.html">iron</a></span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="Example-analysis_files/figure-html/unnamed-chunk-11-1.png" alt="Proportion of food consumption pattern" width="700"><p class="caption">
+Proportion of food consumption pattern
+</p>
+</div>
+<p>Back to the analysis, first of all, whether or not they are allowed
+to hunt, hours indoor, reproductive conditions seem to be related to the
+top predators. So let’s look at these first.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">hunt</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">hunt</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>prey_p_month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">prey_p_month</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>            hrs_indoors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">hrs_indoors</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
+<span><span class="co">#&gt;   hunt  prey_p_month hrs_indoors</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> FALSE         0           14.8</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> TRUE          4.67        11.2</span></span></code></pre></div>
+<p>Hunters have more prey counts, higher outdoor hour on average</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">animal_reproductive_condition</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">animal_reproductive_condition</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>prey_p_month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">prey_p_month</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>            hrs_indoors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">hrs_indoors</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
+<span><span class="co">#&gt;   animal_reproductive_condition prey_p_month hrs_indoors</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Neutered                              3.7         11.3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Not fixed                             1.75         7.5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Spayed                                3.84        12.9</span></span></code></pre></div>
+<p>Spayed and Neutered cats have longer hours indoors on average, and
+higher prey per month on average as well.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">food_dry</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">food_dry</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>prey_p_month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">prey_p_month</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>            hrs_indoors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">hrs_indoors</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>            n_cats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">n_cats</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 4</span></span></span>
-<span><span class="co">#&gt;   animal_reproductive_condition hrs_indoors prey_p_month n_cats</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Neutered                             11.3         3.7    2.02</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Not fixed                             7.5         1.75   2   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Spayed                               12.9         3.84   2.15</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> <span style="color: #BB0000;">NA</span>                                   10.8         4.5    2.33</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hms</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">deploy_on_date</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   [1] "2017-06-03 01:02:09 UTC" "2017-06-24 01:02:13 UTC"</span></span>
-<span><span class="co">#&gt;   [3] "2017-06-24 01:03:57 UTC" "2017-06-24 01:18:49 UTC"</span></span>
-<span><span class="co">#&gt;   [5] "2017-06-25 01:04:35 UTC" "2017-06-28 01:02:22 UTC"</span></span>
-<span><span class="co">#&gt;   [7] "2017-06-28 01:03:33 UTC" "2017-06-28 04:10:59 UTC"</span></span>
-<span><span class="co">#&gt;   [9] "2017-07-01 01:02:18 UTC" "2017-07-01 01:05:50 UTC"</span></span>
-<span><span class="co">#&gt;  [11] "2017-07-02 01:02:43 UTC" "2017-07-02 07:28:08 UTC"</span></span>
-<span><span class="co">#&gt;  [13] "2017-07-07 01:01:46 UTC" "2017-07-08 01:02:02 UTC"</span></span>
-<span><span class="co">#&gt;  [15] "2017-07-08 01:02:52 UTC" "2017-07-08 01:16:36 UTC"</span></span>
-<span><span class="co">#&gt;  [17] "2017-07-08 02:36:48 UTC" "2017-07-09 01:03:00 UTC"</span></span>
-<span><span class="co">#&gt;  [19] "2017-07-09 01:04:12 UTC" "2017-07-09 02:19:00 UTC"</span></span>
-<span><span class="co">#&gt;  [21] "2017-07-13 01:01:00 UTC" "2017-07-13 01:01:06 UTC"</span></span>
-<span><span class="co">#&gt;  [23] "2017-07-13 01:02:09 UTC" "2017-07-13 01:02:57 UTC"</span></span>
-<span><span class="co">#&gt;  [25] "2017-07-13 01:05:34 UTC" "2017-07-14 01:02:00 UTC"</span></span>
-<span><span class="co">#&gt;  [27] "2017-07-16 01:02:02 UTC" "2017-07-16 01:02:32 UTC"</span></span>
-<span><span class="co">#&gt;  [29] "2017-07-16 01:03:04 UTC" "2017-07-16 01:46:58 UTC"</span></span>
-<span><span class="co">#&gt;  [31] "2017-07-16 22:26:56 UTC" "2017-07-17 01:01:00 UTC"</span></span>
-<span><span class="co">#&gt;  [33] "2017-07-17 01:03:30 UTC" "2017-07-20 01:02:02 UTC"</span></span>
-<span><span class="co">#&gt;  [35] "2017-07-20 01:03:19 UTC" "2017-07-20 03:06:34 UTC"</span></span>
-<span><span class="co">#&gt;  [37] "2017-07-20 03:29:22 UTC" "2017-07-20 09:25:37 UTC"</span></span>
-<span><span class="co">#&gt;  [39] "2017-07-22 01:02:05 UTC" "2017-07-22 01:02:42 UTC"</span></span>
-<span><span class="co">#&gt;  [41] "2017-07-22 01:04:12 UTC" "2017-07-22 01:06:16 UTC"</span></span>
-<span><span class="co">#&gt;  [43] "2017-07-28 01:03:24 UTC" "2017-07-28 01:05:56 UTC"</span></span>
-<span><span class="co">#&gt;  [45] "2017-07-29 01:02:11 UTC" "2017-07-29 01:02:12 UTC"</span></span>
-<span><span class="co">#&gt;  [47] "2017-07-29 01:02:49 UTC" "2017-07-29 05:36:35 UTC"</span></span>
-<span><span class="co">#&gt;  [49] "2017-08-25 01:01:32 UTC" "2017-08-25 01:01:47 UTC"</span></span>
-<span><span class="co">#&gt;  [51] "2017-08-25 01:02:00 UTC" "2017-08-25 01:02:29 UTC"</span></span>
-<span><span class="co">#&gt;  [53] "2017-08-25 01:03:23 UTC" "2017-08-25 01:04:55 UTC"</span></span>
-<span><span class="co">#&gt;  [55] "2017-08-25 01:05:18 UTC" "2017-08-25 01:05:44 UTC"</span></span>
-<span><span class="co">#&gt;  [57] "2017-08-25 01:22:22 UTC" "2017-08-25 01:50:01 UTC"</span></span>
-<span><span class="co">#&gt;  [59] "2017-08-25 02:00:08 UTC" "2017-08-25 06:15:27 UTC"</span></span>
-<span><span class="co">#&gt;  [61] "2017-08-26 01:03:01 UTC" "2017-08-27 01:45:09 UTC"</span></span>
-<span><span class="co">#&gt;  [63] "2017-08-27 02:19:45 UTC" "2017-08-28 15:39:12 UTC"</span></span>
-<span><span class="co">#&gt;  [65] "2017-08-28 23:51:55 UTC" "2017-09-07 05:02:00 UTC"</span></span>
-<span><span class="co">#&gt;  [67] "2017-09-10 01:46:42 UTC" "2017-09-10 11:02:26 UTC"</span></span>
-<span><span class="co">#&gt;  [69] "2017-09-13 18:02:02 UTC" "2017-09-17 01:02:50 UTC"</span></span>
-<span><span class="co">#&gt;  [71] "2017-09-17 01:04:18 UTC" "2017-09-17 01:05:12 UTC"</span></span>
-<span><span class="co">#&gt;  [73] "2017-09-17 01:21:38 UTC" "2017-09-17 01:34:47 UTC"</span></span>
-<span><span class="co">#&gt;  [75] "2017-09-17 02:53:42 UTC" "2017-09-18 01:03:13 UTC"</span></span>
-<span><span class="co">#&gt;  [77] "2017-09-18 06:57:14 UTC" "2017-09-23 17:31:52 UTC"</span></span>
-<span><span class="co">#&gt;  [79] "2017-09-24 01:02:32 UTC" "2017-09-24 01:03:02 UTC"</span></span>
-<span><span class="co">#&gt;  [81] "2017-09-25 01:03:24 UTC" "2017-09-25 01:03:54 UTC"</span></span>
-<span><span class="co">#&gt;  [83] "2017-09-25 01:19:26 UTC" "2017-09-25 01:20:25 UTC"</span></span>
-<span><span class="co">#&gt;  [85] "2017-09-28 01:02:00 UTC" "2017-09-28 01:02:04 UTC"</span></span>
-<span><span class="co">#&gt;  [87] "2017-09-29 00:01:13 UTC" "2017-09-29 07:01:28 UTC"</span></span>
-<span><span class="co">#&gt;  [89] "2017-09-30 04:28:02 UTC" "2017-10-09 01:01:51 UTC"</span></span>
-<span><span class="co">#&gt;  [91] "2017-10-23 01:02:09 UTC" "2017-10-23 01:03:54 UTC"</span></span>
-<span><span class="co">#&gt;  [93] "2017-10-23 01:03:54 UTC" "2017-10-30 01:02:13 UTC"</span></span>
-<span><span class="co">#&gt;  [95] "2017-10-30 01:05:07 UTC" "2017-11-18 01:46:24 UTC"</span></span>
-<span><span class="co">#&gt;  [97] "2017-11-20 01:16:41 UTC" "2017-11-20 01:38:55 UTC"</span></span>
-<span><span class="co">#&gt;  [99] "2017-11-20 01:47:42 UTC" "2017-11-24 06:48:32 UTC"</span></span>
-<span><span class="co">#&gt; [101] "2017-11-24 09:43:09 UTC"</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hms</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">deploy_on_date</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hms</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">deploy_off_date</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Time differences in hours</span></span>
-<span><span class="co">#&gt;   [1] -169.14528 -166.95528 -166.90111 -151.76417 -200.09222 -173.79500</span></span>
-<span><span class="co">#&gt;   [7] -150.08278 -142.65167 -197.61306 -166.98944 -167.55833 -134.46889</span></span>
-<span><span class="co">#&gt;  [13] -169.82833 -175.13389  -12.16722 -174.05694 -167.33361 -176.50000</span></span>
-<span><span class="co">#&gt;  [19] -170.11472 -166.25000 -167.50000 -168.30000  -71.11194 -163.83222</span></span>
-<span><span class="co">#&gt;  [25] -183.02167 -167.03333 -167.16417 -195.74444 -182.06167 -195.53167</span></span>
-<span><span class="co">#&gt;  [31] -123.16528 -143.06667 -148.26194 -167.05806 -171.23583 -165.03889</span></span>
-<span><span class="co">#&gt;  [37] -159.94111 -158.98389  -95.80639 -176.83194 -177.32861 -158.37806</span></span>
-<span><span class="co">#&gt;  [43] -167.07444 -168.96250  -47.69694 -242.93306 -122.91917 -171.81639</span></span>
-<span><span class="co">#&gt;  [49] -186.04833 -170.02917  -16.06667 -174.95667 -167.03556 -168.68806</span></span>
-<span><span class="co">#&gt;  [55] -185.69333 -167.04194 -174.88444 -174.13917 -146.80556 -168.49806</span></span>
-<span><span class="co">#&gt;  [61] -175.31000 -168.39444 -148.29222 -162.17389 -154.61778 -130.50000</span></span>
-<span><span class="co">#&gt;  [67]  -77.99139 -128.87167 -102.05639 -167.82833 -695.02167 -166.86333</span></span>
-<span><span class="co">#&gt;  [73] -134.89333 -174.00861 -169.55528 -172.60889 -167.81333 -131.63528</span></span>
-<span><span class="co">#&gt;  [79] -167.48139 -157.64111 -184.32583 -181.89361 -177.75889 -131.87278</span></span>
-<span><span class="co">#&gt;  [85] -129.72583 -156.67028 -168.72833 -657.83639 -163.61444 -167.06944</span></span>
-<span><span class="co">#&gt;  [91] -169.32639 -191.09917 -177.28028 -172.10889 -210.83972 -167.41833</span></span>
-<span><span class="co">#&gt;  [97] -143.36083 -166.50944 -169.09972 -116.93778 -135.16278</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
+<span><span class="co">#&gt;   food_dry prey_p_month hrs_indoors n_cats</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> FALSE            5.25        13.8   2   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> TRUE             3.68        11.8   2.08</span></span></code></pre></div>
+<p>Next we look at a few numerical variables</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age_years</span><span class="op">)</span>,<span class="op">]</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">age_years</span>, y<span class="op">=</span><span class="va">prey_p_month</span>, color <span class="op">=</span> <span class="va">animal_sex</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Scatter plot of domestic cats prey per month versus age"</span>, subtitle <span class="op">=</span> <span class="st">"Colored by sex"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Age by year"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Prey per month"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="Example-analysis_files/figure-html/unnamed-chunk-15-1.png" alt="Comparison between prey counts and age" width="700"><p class="caption">
+Comparison between prey counts and age
+</p>
+</div>
+<p>Age do not show significant relationship with prey counts</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">hrs_indoors</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">hrs_indoors</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, y<span class="op">=</span><span class="va">prey_p_month</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">hrs_indoors</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Boxplot of domestic cats prey per month versus hours indoor"</span>, subtitle <span class="op">=</span> <span class="st">"Colored by hours in door"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Hours indoor"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Prey per month"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position<span class="op">=</span><span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="Example-analysis_files/figure-html/unnamed-chunk-16-1.png" alt="Comparison between prey counts and hours indoor" width="700"><p class="caption">
+Comparison between prey counts and hours indoor
+</p>
+</div>
+<p>Higher hours in door is associated with lower prey counts, and lower
+hours in door is associated with higher prey counts</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>strap_time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hms</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">deploy_off_date</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hms</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">deploy_on_date</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">24</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">strap_time</span>, y<span class="op">=</span><span class="va">prey_p_month</span>, color <span class="op">=</span> <span class="va">animal_sex</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Scatter plot of domestic cats prey per month versus GPS strap time"</span>, subtitle <span class="op">=</span> <span class="st">"Colored by sex"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Strap Time"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Prey per month"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="Example-analysis_files/figure-html/unnamed-chunk-17-1.png" alt="Comparison between prey counts and GPS strap time" width="700"><p class="caption">
+Comparison between prey counts and GPS strap time
+</p>
+</div>
+<p>The time the cats having GPS strapped on does not show strong
+relationship with prey counts.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">prey_p_month</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">food_dry</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</span></span></code></pre></div>
+<div class="figure">
+<img src="Example-analysis_files/figure-html/unnamed-chunk-18-1.png" alt="Comparison between prey counts and food type" width="700"><p class="caption">
+Comparison between prey counts and food type
+</p>
+</div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Histogram of domestic cats prey per month"</span>, subtitle <span class="op">=</span> <span class="st">"grouped by food type"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $title</span></span>
+<span><span class="co">#&gt; [1] "Histogram of domestic cats prey per month"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $subtitle</span></span>
+<span><span class="co">#&gt; [1] "grouped by food type"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"class")</span></span>
+<span><span class="co">#&gt; [1] "labels"</span></span></code></pre></div>
+<p>Although cats eating dry food do show higher prey counts, but the
+counts are too imbalanced to make a conclusion</p>
+</div>
+<div class="section level3">
+<h3 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h3>
+<p>whether or not they are allowed to hunt, hours indoor, and
+reproductive conditions affect the prey per month of domestic cats</p>
 </div>
 <div class="section level3">
 <h3 id="functions-used">Functions used<a class="anchor" aria-label="anchor" href="#functions-used"></a>
@@ -224,27 +380,31 @@
 <tr class="odd">
 <td><code>dplyr</code></td>
 <td align="center">
-<code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter()</a></code>,
-<code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_min()</a></code>,
+<code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code>,
+<code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max()</a></code>,
 <code><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by()</a></code>
 </td>
 </tr>
 <tr class="even">
-<td><code>stringr</code></td>
-<td align="center"><code><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect()</a></code></td>
+<td><code>tidyr</code></td>
+<td align="center"><code><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider()</a></code></td>
 </tr>
 <tr class="odd">
 <td><code>lubridate</code></td>
-<td align="center">
-<code><a href="https://lubridate.tidyverse.org/reference/month.html" class="external-link">month()</a></code>, <code><a href="https://lubridate.tidyverse.org/reference/day.html" class="external-link">wday()</a></code>
-</td>
+<td align="center"><code><a href="https://lubridate.tidyverse.org/reference/ymd_hms.html" class="external-link">ymd_hms()</a></code></td>
 </tr>
 <tr class="even">
 <td><code>ggplot2</code></td>
 <td align="center">
-<code><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line()</a></code>,
-<code><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline()</a></code>,
-<code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth()</a></code>
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point()</a></code>,
+<code><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram()</a></code>
+</td>
+</tr>
+<tr class="odd">
+<td><code>waffle</code></td>
+<td align="center">
+<code><a href="../reference/waffle.html">waffle()</a></code>, <code><a href="../reference/iron.html">iron()</a></code>,
+<code><a href="../reference/geom_waffle.html">geom_waffle()</a></code>
 </td>
 </tr>
 </tbody>
