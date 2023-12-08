@@ -46,6 +46,12 @@ Imports:
     DT,
     plyr,
     rlang,
-    utils
+    utils,
+    tidytuesdayR,
+    dplyr,
+    lubridate,
+    ggplot2,
+    tidyr,
+    extrafont
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
