@@ -19,14 +19,32 @@ library(waffle)
 library(tidytuesdayR)
 library(dplyr)
 library(lubridate)
+library(ggplot2)
+library(tidyr)
+library(extrafont)
 ```
 
-Link to the data dictionary: https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md
+
+
+### Question
+
+What factors affect pet cat's hours indoor?
+
+
+### Data Source
+
+The data comes from the [Movebank for Animal Tracking Data](https://datarepository.movebank.org/entities/datapackage/4ef43458-a0c0-4ff0-aed4-64b07cedf11c) via Data is Plural. The initial intent of the dataset is to impact of domestic cats on native prey. The data contains information about over one hundred (specifically 101) volunteers' cat information on age, sex, neuter status, hunting habits, and time-stamped GPS pings.
+
+**Link to data source**: McDonald JL, Cole H (2020) Data from: The small home ranges and large local ecological impacts of pet cats [United Kingdom]. Movebank Data Repository. [doi:10.5441/001/1.pf315732](https://datarepository.movebank.org/entities/datapackage/4ef43458-a0c0-4ff0-aed4-64b07cedf11c)
+
+**Link to the data dictionary**: https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-01-31/readme.md
 
 
 
 
 ### Load data into R
+
+The following code chunk can read in the data from `tidytuesdayR`. We will save the file locally, so this chunk will only run once if you first clone the directory
 
 ```
 tuesdata <- tidytuesdayR::tt_load('2023-01-31')
@@ -36,7 +54,7 @@ cats_uk <- tuesdata$cats_uk
 cats_uk_reference <- tuesdata$cats_uk_reference
 ```
 
-
+The data is saved under the data folder
 
 ```{r}
 # function to test if the directory exists, and create one if not
@@ -57,36 +75,179 @@ df <- read.csv(paste(here::here(), 'data/cats_uk_reference.csv', sep="/"))
 ```
 
 
+### Data Wrangling and Visualization
+
+First of all, let's take a look at the basic information of the dataset
+
+```{r}
+sum(is.na(df$animal_sex))
+```
+
+
+```{r}
+df %>% 
+  group_by(animal_sex) %>%
+  summarise(count = n())
+```
+
+There are 44 female cats and 57 male cats
+
+Below is a demonstration of our `waffle` package. We can visualize the counts of female and male in square pie charts, which is able to show the proportion of data more directly
+
+```{r}
+df %>% 
+  group_by(animal_sex) %>%
+  summarise(count = n()) %>%
+  waffle(rows = 5, legend_pos = "bottom", colors = c("#c7d4b6", "#a3aabd"))
+```
+
+```{r}
+df %>% 
+  filter(!is.na(animal_reproductive_condition))%>% 
+  group_by(animal_sex, animal_reproductive_condition) %>%
+  summarise(count = n()) %>%
+  pivot_wider(names_from = "animal_reproductive_condition",
+              values_from = "count")
+```
+
+Obviously female cats are spayed and male cats are neutered. Only two cats are not fixed
+
 
 ```{r}
 unique(df$animal_taxon)
 unique(df$study_site)
 ```
 
+All cats are domestic cats (Felis catus). All are from the UK.
 
 ```{r}
-df %>% group_by(animal_reproductive_condition) %>%
-  summarise(hrs_indoors = mean(hrs_indoors, na.rm = TRUE),
-            prey_p_month = mean(prey_p_month, na.rm = TRUE),
+sum(is.na(df$animal_reproductive_condition))
+```
+
+There are three missing values for the reproductive conditions, among 101 cats, so I will remove it first for cleaness of the example analysis.
+
+
+```{r}
+df %>%
+  select(tag_id, prey_p_month, hrs_indoors, hunt, n_cats, 
+         animal_reproductive_condition, food_dry, 
+         animal_sex, age_years) %>% 
+  slice_max(prey_p_month, n = 5)
+```
+
+The highest per month is 17.5, all of them spend 7.5 hours in door; they are allowed to hunt, the number of cats in the household varies; all of them are neutered or spayed; all of them have dry food; Sex varies; age is in the lower to middle range.
+
+Here we can put in another two functions in `waffle`
+
+`waffle` package can also work with ggplot
+
+```{r, fig.cap="Proportion of dry and not dry food"}
+df %>%
+  count(food_dry) %>%
+  ggplot(aes(fill = food_dry, values = n)) +
+  geom_waffle(n_rows = 8, size = 0.33, colour = "white") +
+  scale_fill_manual(name = NULL,
+                    values = c("#BA182A", "#FFEDA0"),
+                    labels = c("Not Dry", "Dry")) +
+  coord_equal() +
+  theme_void() + ggtitle("Waffle plot of dry food count", 
+                         subtitle = "each square represents one cat")
+```
+
+It can also combine plots
+
+```{r, fig.cap="Proportion of food consumption pattern"}
+p1 <- df %>% 
+  group_by(food_dry) %>%
+  summarise(count = n()) %>%
+  waffle(rows = 5, colors = c("#BA182A", "#FFEDA0"), title ="Waffle plot of dry food count")
+p2 <- df %>% 
+  group_by(food_wet) %>%
+  summarise(count = n()) %>%
+  waffle(rows = 5, colors = c("#BA182A", "#FFEDA0"), title="Waffle plot of wet food count")
+iron(p1, p2)
+```
+
+Back to the analysis, first of all, whether or not they are allowed to hunt, hours indoor, reproductive conditions seem to be related to the top predators. So let's look at these first.
+
+```{r}
+df %>% filter(!is.na(hunt)) %>%
+  group_by(hunt) %>%
+  summarise(prey_p_month = mean(prey_p_month, na.rm = TRUE),
+            hrs_indoors = mean(hrs_indoors, na.rm = TRUE))
+```
+
+Hunters have more prey counts, higher outdoor hour on average
+
+```{r}
+df %>% filter(!is.na(animal_reproductive_condition)) %>%
+  group_by(animal_reproductive_condition) %>%
+  summarise(prey_p_month = mean(prey_p_month, na.rm = TRUE),
+            hrs_indoors = mean(hrs_indoors, na.rm = TRUE))
+```
+
+
+Spayed and Neutered cats have longer hours indoors on average, and higher prey per month on average as well.
+
+```{r}
+df %>% filter(!is.na(food_dry)) %>%
+  group_by(food_dry) %>%
+  summarise(prey_p_month = mean(prey_p_month, na.rm = TRUE),
+            hrs_indoors = mean(hrs_indoors, na.rm = TRUE),
             n_cats = mean(n_cats, na.rm = TRUE))
 ```
 
+Next we look at a few numerical variables
 
-```{r}
-ymd_hms(df$deploy_on_date)
+```{r, fig.cap="Comparison between prey counts and age"}
+ggplot(df[!is.na(df$age_years),], aes(x=age_years, y=prey_p_month, color = animal_sex)) + 
+  geom_point() + 
+  ggtitle("Scatter plot of domestic cats prey per month versus age", subtitle = "Colored by sex") + 
+  xlab("Age by year") + ylab("Prey per month")
 ```
 
+Age do not show significant relationship with prey counts
 
-```{r}
-ymd_hms(df$deploy_on_date) - ymd_hms(df$deploy_off_date)
+
+```{r, fig.cap="Comparison between prey counts and hours indoor"}
+ggplot(data=df, aes(x=factor(hrs_indoors, levels = sort(unique(hrs_indoors))), y=prey_p_month, fill = as.factor(hrs_indoors))) + 
+  geom_boxplot() + 
+  ggtitle("Boxplot of domestic cats prey per month versus hours indoor", subtitle = "Colored by hours in door") + 
+  xlab("Hours indoor") + ylab("Prey per month") + theme(legend.position="none")
 ```
+
+Higher hours in door is associated with lower prey counts, and lower hours in door is associated with higher prey counts
+
+
+```{r, fig.cap="Comparison between prey counts and GPS strap time"}
+df %>% 
+  mutate(strap_time = as.numeric(ymd_hms(df$deploy_off_date) - ymd_hms(df$deploy_on_date)) / 24) %>%
+  ggplot(aes(x=strap_time, y=prey_p_month, color = animal_sex)) + 
+  geom_point() + 
+  ggtitle("Scatter plot of domestic cats prey per month versus GPS strap time", subtitle = "Colored by sex") + 
+  xlab("Strap Time") + ylab("Prey per month")
+```
+
+The time the cats having GPS strapped on does not show strong relationship with prey counts.
+
+```{r, fig.cap="Comparison between prey counts and food type"}
+ggplot(df, aes(x=prey_p_month)) + geom_histogram() +
+  facet_grid(cols = vars(food_dry))
+  ggtitle("Histogram of domestic cats prey per month", subtitle = "grouped by food type")
+```
+Although cats eating dry food do show higher prey counts, but the counts are too imbalanced to make a conclusion
+
+### Summary
+
+whether or not they are allowed to hunt, hours indoor, and reproductive conditions affect the prey per month of domestic cats
 
 
 ### Functions used
 
 | Package       | Function     |  
 | ------------- |:-------------:| 
-| `dplyr`      | `select()`, `filter()`, `slice_max()`, `slice_min()`, `summarise()`, `group_by()` | 
-| `stringr`      | `str_detect()`      |  
-| `lubridate` | `month()`, `wday()`      | 
-| `ggplot2` | `geom_line()`, `geom_histogram()`, `geom_vline()`, `geom_point()`, `geom_smooth()`|
+| `dplyr`      | `select()`, `mutate()`, `filter()`, `slice_max()`, `summarise()`, `group_by()` | 
+| `tidyr`     | `pivot_wider()` |
+| `lubridate` | `ymd_hms()`      | 
+| `ggplot2` | `geom_point()`, `geom_boxplot()`, `geom_histogram()`|
+| `waffle` | `waffle()`, `iron()`, `geom_waffle()` |
