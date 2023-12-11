@@ -3,18 +3,20 @@
 
 Create Waffle Chart Visualizations
 
-Link to the original package: [waffle](https://github.com/hrbrmstr/waffle)
+Github Link to the original package: [waffle](https://github.com/hrbrmstr/waffle)
 
 Link to deplopyed website: https://jhu-statprogramming-fall-2023.github.io/biostat777-project3-part1-yanxiliu230/
 
 Customization:
-1. change theme to cyborg
-2. change code block theme to breeze-light
-3. change base font, head font, code font
+1. change background color to gray and foreground text color darker gray
+2. code block syntax highlighting theme to a11y-light
+3. link color to purple
+4. change base font to Lato, and head font to Roboto Slab
+5. edit the navbar to put article to the right side
 
 Original Author: Bob Rudis, Dave Gandy, Nora Liu
 
-## Description
+## Goal and Description
 
 Square pie charts (a.k.a. waffle charts) can be used to communicate
 parts of a whole for categorical quantities. To emulate the percentage

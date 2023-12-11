@@ -1,10 +1,14 @@
 url: ~
 template:
   bootstrap: 5
-  bootswatch: cyborg
-  theme: breeze-light
+  theme: a11y-light
   bslib:
-    base_font: {google: "Roboto"}
+    bg: "#E8E4E3"
+    fg: "#636161"
+    primary: "#a330c9"
+    base_font: {google: "Lato"}
     heading_font: {google: "Roboto Slab"}
-    code_font: {google: "JetBrains Mono"}
-
+navbar:
+  structure:
+    left: [reference]
+    right: [articles, search]

@@ -22,6 +22,7 @@ library(lubridate)
 library(ggplot2)
 library(tidyr)
 library(extrafont)
+library(purrr)
 ```
 
 
@@ -78,8 +79,11 @@ df <- read.csv(paste(here::here(), 'data/cats_uk_reference.csv', sep="/"))
 
 First of all, let's take a look at the basic information of the dataset
 
+The most basics are the mean and variance of some numeric variables. This is shown using `purrr` functions
+
 ```{r}
-sum(is.na(df$animal_sex))
+map_dbl(df[map_lgl(df, is.numeric)], mean, na.rm = TRUE)
+map_dbl(df[map_lgl(df, is.numeric)], var, na.rm = TRUE)
 ```
 
 
@@ -93,11 +97,11 @@ There are 44 female cats and 57 male cats
 
 Below is a demonstration of our `waffle` package. We can visualize the counts of female and male in square pie charts, which is able to show the proportion of data more directly
 
-```{r}
+```{r, fig.cap="Fig 1: Proportion of male and female"}
 df %>% 
   group_by(animal_sex) %>%
   summarise(count = n()) %>%
-  waffle(rows = 5, legend_pos = "bottom", colors = c("#c7d4b6", "#a3aabd"))
+  waffle(rows = 5, legend_pos = "bottom", colors = c("#c7d4b6", "#a3aabd"), title="Waffle plot of cat sex")
 ```
 
 ```{r}
@@ -136,11 +140,21 @@ df %>%
 
 The highest per month is 17.5, all of them spend 7.5 hours in door; they are allowed to hunt, the number of cats in the household varies; all of them are neutered or spayed; all of them have dry food; Sex varies; age is in the lower to middle range.
 
-Here we can put in another two functions in `waffle`
+Below is a demonstration of `map` function from `purrr` package
+
+```{r}
+map(df[,c("food_dry", "food_wet", "food_other")], table, useNA = "ifany")
+```
+
+Most cats take try food, double the number of cats do eat wet food than not eat. Some cats have no data on other types of food
+
+Another more compelling way to show this data is by graphics.
+
+Here is where we can put in another two functions in `waffle`
 
 `waffle` package can also work with ggplot
 
-```{r, fig.cap="Proportion of dry and not dry food"}
+```{r, fig.cap="Fig 2: Proportion of dry and not dry food"}
 df %>%
   count(food_dry) %>%
   ggplot(aes(fill = food_dry, values = n)) +
@@ -155,7 +169,7 @@ df %>%
 
 It can also combine plots
 
-```{r, fig.cap="Proportion of food consumption pattern"}
+```{r, fig.cap="Fig 3: Proportion of food consumption pattern"}
 p1 <- df %>% 
   group_by(food_dry) %>%
   summarise(count = n()) %>%
@@ -198,7 +212,7 @@ df %>% filter(!is.na(food_dry)) %>%
 
 Next we look at a few numerical variables
 
-```{r, fig.cap="Comparison between prey counts and age"}
+```{r, fig.cap="Fig 4: Comparison between prey counts and age"}
 ggplot(df[!is.na(df$age_years),], aes(x=age_years, y=prey_p_month, color = animal_sex)) + 
   geom_point() + 
   ggtitle("Scatter plot of domestic cats prey per month versus age", subtitle = "Colored by sex") + 
@@ -208,7 +222,7 @@ ggplot(df[!is.na(df$age_years),], aes(x=age_years, y=prey_p_month, color = anima
 Age do not show significant relationship with prey counts
 
 
-```{r, fig.cap="Comparison between prey counts and hours indoor"}
+```{r, fig.cap="Fig 5: Comparison between prey counts and hours indoor"}
 ggplot(data=df, aes(x=factor(hrs_indoors, levels = sort(unique(hrs_indoors))), y=prey_p_month, fill = as.factor(hrs_indoors))) + 
   geom_boxplot() + 
   ggtitle("Boxplot of domestic cats prey per month versus hours indoor", subtitle = "Colored by hours in door") + 
@@ -218,7 +232,7 @@ ggplot(data=df, aes(x=factor(hrs_indoors, levels = sort(unique(hrs_indoors))), y
 Higher hours in door is associated with lower prey counts, and lower hours in door is associated with higher prey counts
 
 
-```{r, fig.cap="Comparison between prey counts and GPS strap time"}
+```{r, fig.cap="Fig 7: Comparison between prey counts and GPS strap time"}
 df %>% 
   mutate(strap_time = as.numeric(ymd_hms(df$deploy_off_date) - ymd_hms(df$deploy_on_date)) / 24) %>%
   ggplot(aes(x=strap_time, y=prey_p_month, color = animal_sex)) + 
@@ -229,9 +243,9 @@ df %>%
 
 The time the cats having GPS strapped on does not show strong relationship with prey counts.
 
-```{r, fig.cap="Comparison between prey counts and food type"}
+```{r, fig.cap="Fig 8: Comparison between prey counts and food type"}
 ggplot(df, aes(x=prey_p_month)) + geom_histogram() +
-  facet_grid(cols = vars(food_dry))
+  facet_grid(cols = vars(food_dry)) + xlab("prey per month") +
   ggtitle("Histogram of domestic cats prey per month", subtitle = "grouped by food type")
 ```
 Although cats eating dry food do show higher prey counts, but the counts are too imbalanced to make a conclusion
@@ -248,5 +262,6 @@ whether or not they are allowed to hunt, hours indoor, and reproductive conditio
 | `dplyr`      | `select()`, `mutate()`, `filter()`, `slice_max()`, `summarise()`, `group_by()` | 
 | `tidyr`     | `pivot_wider()` |
 | `lubridate` | `ymd_hms()`      | 
+| `purrr` | `map()`, `map_lgl()`, `map_dbl()` |
 | `ggplot2` | `geom_point()`, `geom_boxplot()`, `geom_histogram()`|
 | `waffle` | `waffle()`, `iron()`, `geom_waffle()` |
