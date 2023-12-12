@@ -10,7 +10,7 @@ Link to deplopyed website: https://jhu-statprogramming-fall-2023.github.io/biost
 Customization:
 1. change background color to gray and foreground text color darker gray
 2. code block syntax highlighting theme to a11y-light
-3. link color to purple
+3. link color and hover color to purple
 4. change base font to Lato, and head font to Roboto Slab
 5. edit the navbar to put article to the right side
 

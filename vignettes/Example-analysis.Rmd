@@ -28,8 +28,7 @@ library(purrr)
 
 ### Question
 
-What factors affect pet cat's hours indoor?
-
+What factors affect domestic pet cat's outdoor prey counts?
 
 ### Data Source
 
@@ -79,7 +78,7 @@ df <- read.csv(paste(here::here(), 'data/cats_uk_reference.csv', sep="/"))
 
 First of all, let's take a look at the basic information of the dataset
 
-The most basics are the mean and variance of some numeric variables. This is shown using `purrr` functions
+The most basics are the mean and variance of some numeric variables. This is shown using `map_dbl()` function in `purrr` package. `map_lgl()` is handy here for subsetting
 
 ```{r}
 map_dbl(df[map_lgl(df, is.numeric)], mean, na.rm = TRUE)
@@ -95,7 +94,7 @@ df %>%
 
 There are 44 female cats and 57 male cats
 
-Below is a demonstration of our `waffle` package. We can visualize the counts of female and male in square pie charts, which is able to show the proportion of data more directly
+Below is a demonstration of the `waffle()` function in our `waffle` package. We can visualize the counts of female and male in square pie charts, which is able to show the proportion of data more directly
 
 ```{r, fig.cap="Fig 1: Proportion of male and female"}
 df %>% 
@@ -103,6 +102,8 @@ df %>%
   summarise(count = n()) %>%
   waffle(rows = 5, legend_pos = "bottom", colors = c("#c7d4b6", "#a3aabd"), title="Waffle plot of cat sex")
 ```
+
+We now go on to look at other variables
 
 ```{r}
 df %>% 
@@ -138,9 +139,9 @@ df %>%
   slice_max(prey_p_month, n = 5)
 ```
 
-The highest per month is 17.5, all of them spend 7.5 hours in door; they are allowed to hunt, the number of cats in the household varies; all of them are neutered or spayed; all of them have dry food; Sex varies; age is in the lower to middle range.
+The highest prey count per month is 17.5, and all of them spend 7.5 hours in door; they are allowed to hunt, the number of cats in the household varies; all of them are neutered or spayed; all of them have dry food; Sex varies; age is in the lower to middle range. These might be potential factors that affect prey counts
 
-Below is a demonstration of `map` function from `purrr` package
+Below is another demonstration of `map()` function from `purrr` package. We can easily create tables of the categorical variables now without repeating the similar lines of codes
 
 ```{r}
 map(df[,c("food_dry", "food_wet", "food_other")], table, useNA = "ifany")
@@ -152,7 +153,7 @@ Another more compelling way to show this data is by graphics.
 
 Here is where we can put in another two functions in `waffle`
 
-`waffle` package can also work with ggplot
+`waffle` package can also work with ggplot with the `geom_waffle()` function
 
 ```{r, fig.cap="Fig 2: Proportion of dry and not dry food"}
 df %>%
@@ -216,7 +217,7 @@ Next we look at a few numerical variables
 ggplot(df[!is.na(df$age_years),], aes(x=age_years, y=prey_p_month, color = animal_sex)) + 
   geom_point() + 
   ggtitle("Scatter plot of domestic cats prey per month versus age", subtitle = "Colored by sex") + 
-  xlab("Age by year") + ylab("Prey per month")
+  xlab("Age by year") + ylab("Prey per month") + labs(colour="animal sex")
 ```
 
 Age do not show significant relationship with prey counts

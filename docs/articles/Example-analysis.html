@@ -100,7 +100,7 @@
 <div class="section level3">
 <h3 id="question">Question<a class="anchor" aria-label="anchor" href="#question"></a>
 </h3>
-<p>What factors affect pet cat’s hours indoor?</p>
+<p>What factors affect domestic pet cat’s outdoor prey counts?</p>
 </div>
 <div class="section level3">
 <h3 id="data-source">Data Source<a class="anchor" aria-label="anchor" href="#data-source"></a>
@@ -151,7 +151,9 @@ will only run once if you first clone the directory</p>
 <p>First of all, let’s take a look at the basic information of the
 dataset</p>
 <p>The most basics are the mean and variance of some numeric variables.
-This is shown using <code>purrr</code> functions</p>
+This is shown using <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_dbl()</a></code> function in
+<code>purrr</code> package. <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_lgl()</a></code> is handy here for
+subsetting</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_dbl</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_lgl</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">is.numeric</span><span class="op">)</span><span class="op">]</span>, <span class="va">mean</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; prey_p_month  hrs_indoors       n_cats    age_years </span></span>
@@ -169,9 +171,10 @@ This is shown using <code>purrr</code> functions</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> f             44</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> m             57</span></span></code></pre></div>
 <p>There are 44 female cats and 57 male cats</p>
-<p>Below is a demonstration of our <code>waffle</code> package. We can
-visualize the counts of female and male in square pie charts, which is
-able to show the proportion of data more directly</p>
+<p>Below is a demonstration of the <code><a href="../reference/waffle.html">waffle()</a></code> function in our
+<code>waffle</code> package. We can visualize the counts of female and
+male in square pie charts, which is able to show the proportion of data
+more directly</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">animal_sex</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -182,6 +185,7 @@ able to show the proportion of data more directly</p>
 Fig 1: Proportion of male and female
 </p>
 </div>
+<p>We now go on to look at other variables</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">animal_reproductive_condition</span><span class="op">)</span><span class="op">)</span><span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -233,12 +237,15 @@ analysis.</p>
 <span><span class="co">#&gt; 5                      Neutered     TRUE          m         2</span></span>
 <span><span class="co">#&gt; 6                        Spayed     TRUE          f         6</span></span>
 <span><span class="co">#&gt; 7                      Neutered     TRUE          m         3</span></span></code></pre></div>
-<p>The highest per month is 17.5, all of them spend 7.5 hours in door;
-they are allowed to hunt, the number of cats in the household varies;
-all of them are neutered or spayed; all of them have dry food; Sex
-varies; age is in the lower to middle range.</p>
-<p>Below is a demonstration of <code>map</code> function from
-<code>purrr</code> package</p>
+<p>The highest prey count per month is 17.5, and all of them spend 7.5
+hours in door; they are allowed to hunt, the number of cats in the
+household varies; all of them are neutered or spayed; all of them have
+dry food; Sex varies; age is in the lower to middle range. These might
+be potential factors that affect prey counts</p>
+<p>Below is another demonstration of <code><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map()</a></code> function from
+<code>purrr</code> package. We can easily create tables of the
+categorical variables now without repeating the similar lines of
+codes</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"food_dry"</span>, <span class="st">"food_wet"</span>, <span class="st">"food_other"</span><span class="op">)</span><span class="op">]</span>, <span class="va">table</span>, useNA <span class="op">=</span> <span class="st">"ifany"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $food_dry</span></span>
@@ -260,7 +267,8 @@ than not eat. Some cats have no data on other types of food</p>
 <p>Another more compelling way to show this data is by graphics.</p>
 <p>Here is where we can put in another two functions in
 <code>waffle</code></p>
-<p><code>waffle</code> package can also work with ggplot</p>
+<p><code>waffle</code> package can also work with ggplot with the
+<code><a href="../reference/geom_waffle.html">geom_waffle()</a></code> function</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">food_dry</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -336,7 +344,7 @@ higher prey per month on average as well.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age_years</span><span class="op">)</span>,<span class="op">]</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">age_years</span>, y<span class="op">=</span><span class="va">prey_p_month</span>, color <span class="op">=</span> <span class="va">animal_sex</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Scatter plot of domestic cats prey per month versus age"</span>, subtitle <span class="op">=</span> <span class="st">"Colored by sex"</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Age by year"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Prey per month"</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Age by year"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Prey per month"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>colour<span class="op">=</span><span class="st">"animal sex"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="Example-analysis_files/figure-html/unnamed-chunk-16-1.png" alt="Fig 4: Comparison between prey counts and age" width="700"><p class="caption">
 Fig 4: Comparison between prey counts and age
