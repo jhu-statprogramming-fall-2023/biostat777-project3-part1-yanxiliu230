@@ -285,7 +285,9 @@ than not eat. Some cats have no data on other types of food</p>
 Fig 2: Proportion of dry and not dry food
 </p>
 </div>
-<p>It can also combine plots</p>
+<p>It can also combine related plots with the <code><a href="../reference/iron.html">iron()</a></code>
+function in the <code>waffle</code> package, although unfortunately this
+function does not support adding a suptitle to the combined plots</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">food_dry</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>

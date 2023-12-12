@@ -168,7 +168,7 @@ df %>%
                          subtitle = "each square represents one cat")
 ```
 
-It can also combine plots
+It can also combine related plots with the `iron()` function in the `waffle` package, although unfortunately this function does not support adding a suptitle to the combined plots
 
 ```{r, fig.cap="Fig 3: Proportion of food consumption pattern"}
 p1 <- df %>% 
